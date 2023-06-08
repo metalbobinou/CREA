@@ -4,6 +4,9 @@ Case REuse and Adaptation - Method for analysing and visualising knowledge withi
 
 The initial version of the CREA method is available in another Git repository : [CREA-PhD](https://github.com/metalbobinou/CREA-phd)
 
+The thesis manuscript of january 2022 (in french) can be found here : [PhD Thesis](https://theses.hal.science/tel-03774087v1)
+
+
 # Requirements
 - Python 3+
 
