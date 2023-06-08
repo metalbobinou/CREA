@@ -18,4 +18,4 @@ However, it's not mandatory.
 - BOISSIER Fabrice (Project Leader) [2023-...]
 - DELIN Alexandra (Developper) [2023-...]
 - GONCALVES Samuel (Developper) [2023-...]
-
+- PUREN Marie (Project Consumer / Domain Expert) [2023-...]
