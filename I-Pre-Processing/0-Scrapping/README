@@ -1,0 +1,4 @@
+# CRON
+
+For better scrapping and downloading with a limiting rate (in order to
+avoid an overuse/refusal from BnF Gallica), add the following Cron job :
