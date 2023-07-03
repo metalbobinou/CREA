@@ -1,11 +1,11 @@
 import os
-import pytesseract, cv2
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\alexa\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
-#from pytesseract import pytesseract
-
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd ='/usr/bin/tesseract'
 from pdf2image import convert_from_path
 from pdf2image import pdfinfo_from_path
-#import cv2
+import cv2
+
+import language_tool_python
 
 '''def OCR(path):
     result = reader.readtext(path, detail=0, paragraph=True)
@@ -15,32 +15,58 @@ from pdf2image import pdfinfo_from_path
             f.write(text)
             f.write("\n")'''
 
-import language_tool_python
-tool = language_tool_python.LanguageTool('fr-FR')
 
+# Build new directory for output
+def new_filename(img_filename):
+    print("[0] initial name : \"" + img_filename + "\"")
+    filename_no_ext = img_filename.replace(".jpg", "")
+    print("[1] no ext : \"" + filename_no_ext + "\"")
+    filename_new_basename = filename_no_ext.replace("image", "text")
+    print("[2] new basename : \"" + filename_new_basename + "\"")
+    filename_new_dirname = filename_new_basename.replace(filename_new_basename.split('/')[4],"")
+    print("[3] new dirname : \"" + filename_new_dirname + "\"")
+    if (not os.path.exists(filename_new_dirname)):
+        os.makedirs(filename_new_dirname)
+    return (filename_new_basename)
+
+# Write out results
+def write_out(filename, data):
+    f = open(filename + ".txt", 'w', encoding="utf-8")
+    f.write(data)
+    f.close()
+    '''with open(doc + ".txt", 'w') as f:
+        f.write(text)'''
+
+# Process each image
 def to_txt(img):
-    print(img)
+    print("[DEBUG] to_txt : " + img)
+
+    print("[DEBUG] " + img + " : image = cv2.imread")
     image = cv2.imread(img)
+    print("[DEBUG] " + img + " : gray = cv2.cvtColor")
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    text = pytesseract.image_to_string(gray)
+    print("[DEBUG] " + img + " : txt = pytesseract.image_to_string")
+    txt = pytesseract.image_to_string(gray)
+
     '''try:
         text = pytesseract.image_to_string(gray)
     except:
         with open("text/log.txt", 'a', encoding='utf-8') as log:
             log.write("[ERROR] Could not extract text from" + img + "\n")
         return'''
-    doc = img.replace(".jpg", "")
-    #os.mkdir("text/image/La_Jeune_France_19170107/")
-    #doc = doc.replace("image", "text")
-    with open("text/"+doc + ".txt", 'w') as f:
-        f.write(text)
+    new_pathname = new_filename(img)
+    print("[DEBUG] Write out pure text : " + new_pathname)
+    write_out(new_pathname, txt)
+    #print("[DEBUG] Language Tool french")
+    #tool = language_tool_python.LanguageTool('fr-FR')
+    print("[DEBUG] Language Tool processing : " + new_pathname)
+    corrected_txt = tool.correct(txt)
+    #corrected_pathname = new_pathname + "_corrected.txt"
+    corrected_pathname = new_pathname + "corrected"
+    print("[DEBUG] Write out corrected text : " + corrected_pathname)
+    write_out(corrected_pathname, corrected_txt)
 
-
-    txt = tool.correct(text)
-    with open(doc + "corrected.txt", 'w', encoding='utf-8') as f:
-        f.write(txt)
-
-
+# Browse within the directories tree and process each file
 def mapDB2(folder, f):
     for YEAR in os.listdir(folder):
         YEAR = "/" + YEAR
@@ -58,16 +84,13 @@ def mapDB2(folder, f):
                                 # Apply
                                 # print(folder + file)
                                 # f(folder + file)
-                                protec = folder + file
-                                print("DEBUG [MapDB2] : --" + protec + "--")
-                                f(protec)
+                                pathname = folder + file
+                                print("-- [MapDB2]                  Processing file : --" + pathname + "--")
+                                f(pathname)
 
-
+# Main (build dir, open log, launch processing)
 def main():
-    for doc in os.listdir("image/La_Jeune_France_19170107/"):
-        doc = "image/La_Jeune_France_19170107/" + doc
-        to_txt(doc)
-    '''if (not os.path.exists("text")):
+    if (not os.path.exists("text")):
         os.mkdir("text")
     l = open("text/log.txt", 'w')
     l.truncate(0)
@@ -78,7 +101,12 @@ def main():
 
     # Launch process
     mapDB2("image", to_txt)
-    log.close()'''
+    log.close()
 
 
+# GLOBAL DICTIONNARY LOADED ONLY ONCE
+print("[DEBUG][GLOBAL] Language Tool french")
+tool = language_tool_python.LanguageTool('fr-FR')
+
+# Launch main program
 main()
