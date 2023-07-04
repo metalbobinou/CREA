@@ -1,4 +1,24 @@
+In all files, replace /.../ by the absolute path.
+
 # CRON
 
 For better scrapping and downloading with a limiting rate (in order to
 avoid an overuse/refusal from BnF Gallica), add the following Cron job :
+
+*/2 * * * * /.../get_text.sh & sleep 24 ; /.../get_text.sh & sleep 24 ; /.../get_text.sh & sleep 24 ; ./get_text.sh & sleep 24 ; /.../get_text.sh
+
+# DATABASE
+
+To select which documents will be taken from BnF Gallica, add the following infos in all_text.py (for as many document groups as desired) :
+
+Name
+https://gallica.bnf.fr/ark:/DOCUMENT/date
+Start Year
+Start Month
+Start Day
+End Year
+End Month
+End Day
+Time between two documents
+Time unit (j for day, m for month)
+

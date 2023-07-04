@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Set these paths appropriately
+
+BIN="/home/uberblitzsche/mnshs/Project/Traitement/Classique/Lemmatisation/TreeTagger/bin"
+CMD="/home/uberblitzsche/mnshs/Project/Traitement/Classique/Lemmatisation/TreeTagger/cmd"
+LIB="/home/uberblitzsche/mnshs/Project/Traitement/Classique/Lemmatisation/TreeTagger/lib"
+
+OPTIONS="-token -lemma -sgml"
+
+TOKENIZER=${CMD}/utf8-tokenize.perl
+TAGGER=${BIN}/tree-tagger
+ABBR_LIST=${LIB}/french-abbreviations
+PARFILE=${LIB}/french.par
+
+$TOKENIZER -f -a $ABBR_LIST $* |
+$TAGGER $OPTIONS $PARFILE
