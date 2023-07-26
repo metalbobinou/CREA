@@ -1,6 +1,9 @@
+absolute = "/MNSHS-SSD/Militarisation-Jeunesse/data/3-samuel/"
+
 # input
-CSV = "CSV"
-YEAR = "1917"
+CSV = absolute + "CSV"
+# output
+IMPACT_GRAPH = absolute + "IMPACT_GRAPH"
 
 #####
 # Prend une liste et renvoie une map (clé : index)
@@ -61,7 +64,6 @@ def colorFromFun(G, colors, colorDoc, labelsDocuments):
 
 #####
 # Cherche les notions clées du corpus en fonction de leur présence sur plusieurs documents
-import os
 #####
 def keyTerms(mutualImpact, labelsTerms, labelsDocuments, colorA, colorB, colorDoc):
     # Impact Mutuel + labels -> Graphe labellisé
@@ -82,16 +84,17 @@ def keyTerms(mutualImpact, labelsTerms, labelsDocuments, colorA, colorB, colorDo
 # Affiche un graphe selon différentes options
 import matplotlib.pyplot as plt
 #####
-def visualize(G, pos, node_color, weights, labelsDocuments, title):
+def visualize(G, pos, node_color, weights, labelsDocuments, title, year):
     node_sizes = [1000 if node in labelsDocuments else 300 for node in G.nodes()]
 
-    nx.draw_networkx_nodes(G, pos, node_color=node_color, node_size=node_sizes)
+    nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color=node_color)
     nx.draw_networkx_edges(G, pos, edgelist=G.edges(), width=weights, edge_color='black', alpha=0.5)
     nx.draw_networkx_labels(G, pos, font_color='black', font_size=10, labels={node: node if node in labelsDocuments else '\n'.join(node.split('_')) for node in G.nodes()})
 
     plt.axis('off')
     plt.title(title)
-    plt.show()
+    plt.savefig(IMPACT_GRAPH + "/" + year + ".png")
+    plt.clf()
 
 # from networkx.algorithms import community
 # Prend une matrice Numpy et des labels, renvoie un graphe NetworkX labellisé
@@ -112,11 +115,16 @@ def visualize(G, pos, node_color, weights, labelsDocuments, title):
 ###############
 # Application #
 ###############
+import os
 if __name__ == "__main__":
     from matrixToCSV import readMatrix, printMatrix, writeMatrix
-    ID_File, IDs, Files, Examples = readMatrix(CSV + "/" + YEAR + "/ImpactMutuel.csv")
+    for YEAR in os.listdir(CSV):
+        if (os.path.isdir(CSV + "/" + YEAR)):
+            try:
+                ID_File, IDs, Files, Examples = readMatrix(CSV + "/" + YEAR + "/ImpactMutuel.csv")
+                Files = [os.path.basename(File).split(".")[0] for File in Files]
 
-    Files = [os.path.basename(File).split(".")[0] for File in Files]
-
-    G, pos, color_map, weights = keyTerms(ID_File, Examples, Files, "#FF5F5F", "#80E961", "#00B3FF")
-    visualize(G, pos, color_map, weights, Files, "Impact Mutuel")
+                G, pos, color_map, weights = keyTerms(ID_File, Examples, Files, "#FF5F5F", "#80E961", "#00B3FF")
+                visualize(G, pos, color_map, weights, Files, "Impact Mutuel (" + YEAR + ")",  YEAR)
+            except FileNotFoundError:
+                continue
